@@ -1,0 +1,91 @@
+#!python -m pip install --upgrade pip
+
+#!pip install tensorflow==2.3.1 
+
+#!pip install tensorboard==2.4.1
+#!pip install torch  #YOLOv5 runs on top of PyTorch, so we need to import it to the notebook
+from IPython.display import Image #this is to render predictions
+import os
+from random import choice
+import shutil
+
+#arrays to store file names
+imgs =[]
+xmls =[]
+
+#setup dir names
+trainPath = 'D:/Sudharsan/yolov5/Train/images/train'
+valPath = 'D:/Sudharsan/yolov5/Train/images/val'
+crsPath = 'C:/Users/User/Desktop/23/' #dir where images and annotations stored
+
+#setup ratio (val ratio = rest of the files in origin dir after splitting into train and test)
+train_ratio = 0.8
+val_ratio = 0.2
+
+
+#total count of imgs
+totalImgCount = len(os.listdir(crsPath))/2
+
+#soring files to corresponding arrays
+for (dirname, dirs, files) in os.walk(crsPath):
+    for filename in files:
+        if filename.endswith('.txt'):
+            xmls.append(filename)
+        else:
+            imgs.append(filename)
+
+
+#counting range for cycles
+countForTrain = int(len(imgs)*train_ratio)
+countForVal = int(len(imgs)*val_ratio)
+print("training images are : ",countForTrain)
+print("Validation images are : ",countForVal)
+
+trainimagePath = 'D:/Sudharsan/yolov5/Train/images/train/'
+trainlabelPath = 'D:/Sudharsan/yolov5/Train/labels/train/'
+valimagePath = 'D:/Sudharsan/yolov5/Train/Images/val/'
+vallabelPath = 'D:/Sudharsan/yolov5/Train/labels/val/'
+#cycle for train dir
+for x in range(countForTrain):
+
+    fileJpg = choice(imgs) # get name of random image from origin dir
+    fileXml = fileJpg[:-4] +'.txt' # get name of corresponding annotation file
+
+    #move both files into train dir
+    #shutil.move(os.path.join(crsPath, fileJpg), os.path.join(trainimagePath, fileJpg))
+    #shutil.move(os.path.join(crsPath, fileXml), os.path.join(trainlabelPath, fileXml))
+    shutil.copy(os.path.join(crsPath, fileJpg), os.path.join(trainimagePath, fileJpg))
+    shutil.copy(os.path.join(crsPath, fileXml), os.path.join(trainlabelPath, fileXml))
+
+
+    #remove files from arrays
+    imgs.remove(fileJpg)
+    xmls.remove(fileXml)
+
+
+
+#cycle for test dir   
+for x in range(countForVal):
+
+    fileJpg = choice(imgs) # get name of random image from origin dir
+    fileXml = fileJpg[:-4] +'.txt' # get name of corresponding annotation file
+
+    #move both files into train dir
+    #shutil.move(os.path.join(crsPath, fileJpg), os.path.join(valimagePath, fileJpg))
+    #shutil.move(os.path.join(crsPath, fileXml), os.path.join(vallabelPath, fileXml))
+    shutil.copy(os.path.join(crsPath, fileJpg), os.path.join(valimagePath, fileJpg))
+    shutil.copy(os.path.join(crsPath, fileXml), os.path.join(vallabelPath, fileXml))
+    
+    #remove files from arrays
+    imgs.remove(fileJpg)
+    xmls.remove(fileXml)
+
+#rest of files will be validation files, so rename origin dir to val dir
+#os.rename(crsPath, valPath)
+shutil.move(crsPath, valPath) 
+!python train.py --img 640 --batch 64 --epochs 1000 --data dataset.yaml --weights yolov5s.pt --cache
+Image(filename='runs/train/exp2/test_batch2_pred.jpg', width=1000)
+!python detect.py --source runs/train/exp13/NewSample/ --weights runs/train/exp13/weights/best.pt --save-txt
+Image(filename='runs/detect/exp4/a.jpg', width=416)
+from utils.plots import plot_results 
+plot_results(save_dir='runs/train/exp2')  # plot results.txt as results.png
