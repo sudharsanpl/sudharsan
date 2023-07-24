@@ -1,0 +1,12 @@
+
+#path: ../Crack  # dataset root dir
+train: Aniketh_Train/images/train1/  # train images (relative to 'path') 128 images
+val: Aniketh_Train/images/val1/ # val images (relative to 'path') 128 images
+
+
+# Classes
+nc: 2  # number of classes
+names: ['SDH','Crack']  # class names
+
+
+
